@@ -1,0 +1,59 @@
+[package]
+name = "irc-xdcc"
+version = "0.1.0"
+edition = "2024"
+description = "Client IRC avec gestion des XDCC (DCC actif et passif, file d'attente)"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = [
+    "glow",
+    "default_fonts",
+    "clipboard",
+    "x11",
+    "wayland",
+] }
+# Réseau : connexions IRC et transferts DCC en parallèle de l'interface
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "time", "sync", "macros", "fs"] }
+# TLS 100 % Rust (ring : pas de cmake à installer pour compiler)
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12", "logging"] }
+webpki-roots = "1"
+# Configuration lisible et modifiable à la main
+serde = { version = "1", features = ["derive"] }
+toml = "1"
+# Choix du dossier de téléchargement
+rfd = "0.17"
+# Horodatage dans le fuseau horaire local
+jiff = "0.2"
+# Vérification d'une police personnalisée avant de la donner à egui (déjà utilisé par egui)
+skrifa = { version = "0.44", default-features = false, features = ["std"] }
+# Nom d'hôte d'une adresse IP (DNS inverse), pour l'affichage de l'hôte local
+dns-lookup = "4"
+# Langue du système (déjà utilisé par egui_system_font_provider)
+sys-locale = "0.3"
+# UPnP : ouverture automatique du port d'un DCC passif sur la box
+igd-next = { version = "0.18", default-features = false, features = ["aio_tokio"] }
+# Polices du système pour les caractères absents (installées par l'application, sans leurs bitmaps)
+egui_system_font_provider = "0.37"
+
+# Sons : fichiers audio (MCI) et sons du système
+[target.'cfg(windows)'.dependencies]
+# Sons (PlaySound, MCI) et Explorateur (onglet déjà ouvert sur le dossier)
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Media_Audio",
+    "Win32_Media_Multimedia",
+    "Win32_System_Com",
+    "Win32_System_Ole",
+    "Win32_System_Variant",
+    "Win32_UI_Accessibility",
+    "Win32_UI_Shell",
+    "Win32_UI_Shell_Common",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
